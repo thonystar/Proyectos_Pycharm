@@ -145,22 +145,58 @@ while True:
         input("Presiona enter para continuar")
 
     elif opcion == "3":
-        mes = input("Indique el mes de resumen (YYYY-MM): ").strip()
 
-        total_ingresos = 0
-        total_egresos = 0
+        while True:
 
-        for i in movimientos:
+            if len(movimientos) == 0:
+                print('No existes movimientos registrados')
+                input("Presiona enter para continuar")
+                continue
 
-            if i["fecha"].startswith(mes):
-                if i["tipo"] == 'ingreso':
-                    total_ingresos += i["monto"]
-                else:
-                    total_egresos += i["monto"]
-        print(total_egresos)
-        print(total_ingresos)
+            mes = input("Indique el mes de resumen (YYYY-MM): ").strip()
 
-        input("Presiona enter para continuar")
+            if not (len(mes) == 7 and mes[4] == "-") :
+                print('Indique un valor de mes valido. Ejemplo: 2026-01')
+                continue
+
+            total_ingresos = 0
+            total_egresos = 0
+            encontrados = 0
+
+            egresos_por_categ = {}
+
+            for i in movimientos:
+
+                if i["fecha"].startswith(mes):
+                    encontrados += 1
+                    if i["tipo"] == 'ingreso':
+                        total_ingresos += i["monto"]
+                    elif i["tipo"] == 'egreso':
+                        cat = i["categoria"]
+                        total_egresos += i["monto"]
+                        egresos_por_categ[cat] = egresos_por_categ.get(cat, 0) + i["monto"]
+                    else:
+                        print("Tipo incorrecto")
+            balance = total_ingresos - total_egresos
+
+            print("\n Resumen del mes:", mes)
+            if encontrados == 0:
+                print("No hay movimientos registrados para este mes")
+            else:
+                print(f'Total de ingresos: {total_ingresos:.2f}')
+                print(f'Total de egresos: {total_egresos:.2f}')
+                print(f'Balance: {balance:.2f}')
+
+                print("\n Egresos por categorias: ")
+                for cat, total in sorted(egresos_por_categ.items(), key= lambda x: x[1], reverse= True):
+                    print(f' - {cat}: {total:.2f}')
+
+
+            input("Presiona enter para continuar")
+            break
+
+
+
     elif opcion == "4":
         print("Saliendo del menú")
         break
